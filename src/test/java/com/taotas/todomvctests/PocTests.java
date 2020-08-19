@@ -1,4 +1,4 @@
-package com.selenide.todomvc.poc;
+package com.taotas.todomvctests;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -9,14 +9,13 @@ import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
-public class PocTest {
+public class PocTests {
 
     @Test
-    public void endToEndTest() {
+    public void checkingMainFeaturesTest() {
         open("http://todomvc4tasj.herokuapp.com/");
         Wait().until(ExpectedConditions
                 .jsReturnsValue("return $._data($('#new-todo').get(0), 'events').hasOwnProperty('keyup')"));
-
 
         // Creating tasks
         $("#new-todo").append("a").pressEnter();
