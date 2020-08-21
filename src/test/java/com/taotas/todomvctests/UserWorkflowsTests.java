@@ -27,9 +27,11 @@ public class UserWorkflowsTests {
         $$("#todo-list>li").find(cssClass("editing"))
                 .find(".edit").append(" edited").pressEnter();
 
-        // Complete and Delete
+        // Complete
         $$("#todo-list>li").findBy(exactText("a edited"))
                 .find(".toggle").click();
+
+        // Clear Completed
         $("#clear-completed").click();
         $$("#todo-list>li").shouldHave(exactTexts("b", "c"));
 
