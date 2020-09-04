@@ -1,5 +1,6 @@
 package com.taotas.todomvctests;
 
+import com.codeborne.selenide.ElementsCollection;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -16,33 +17,51 @@ public class UserWorkflowsTests {
         Wait().until(ExpectedConditions
                 .jsReturnsValue("return $._data($('#new-todo').get(0), 'events').hasOwnProperty('keyup')"));
 
-        // Create
-        $("#new-todo").append("a").pressEnter();
-        $("#new-todo").append("b").pressEnter();
-        $("#new-todo").append("c").pressEnter();
-        $$("#todo-list>li").shouldHave(exactTexts("a", "b", "c"));
+        add("a", "b", "c");
+        getTaskList().shouldHave(exactTexts("a", "b", "c"));
 
-        // Edit
-        $$("#todo-list>li").findBy(exactText("a")).doubleClick();
-        $$("#todo-list>li").find(cssClass("editing"))
-                .find(".edit").append(" edited").pressEnter();
+        edit("a", " edited");
+        complete("a edited");
 
-        // Complete
-        $$("#todo-list>li").findBy(exactText("a edited"))
-                .find(".toggle").click();
+        clearCompleted();
+        getTaskList().shouldHave(exactTexts("b", "c"));
 
-        // Clear Completed
+        cancelEditing("c", " cancel editing");
+
+        delete("c");
+        getTaskList().shouldHave(exactTexts("b"));
+    }
+
+
+    private void add(String... taskTexts) {
+        for (String text : taskTexts) {
+            $("#new-todo").append(text).pressEnter();
+        }
+    }
+
+    private void edit(String task, String text) {
+        getTaskList().findBy(exactText(task)).doubleClick();
+        getTaskList().find(cssClass("editing")).find(".edit").append(text).pressEnter();
+    }
+
+    private void complete(String task) {
+        getTaskList().findBy(exactText(task)).find(".toggle").click();
+    }
+
+    private void clearCompleted() {
         $("#clear-completed").click();
-        $$("#todo-list>li").shouldHave(exactTexts("b", "c"));
+    }
 
-        // Cancel editing
-        $$("#todo-list>li").findBy(exactText("c")).doubleClick();
-        $$("#todo-list>li").find(cssClass("editing"))
-                .find(".edit").append(" cancel editing").pressEscape();
+    private void cancelEditing(String task, String text) {
+        getTaskList().findBy(exactText(task)).doubleClick();
+        getTaskList().find(cssClass("editing")).find(".edit").append(text).pressEscape();
+    }
 
-        // Delete
-        $$("#todo-list>li").findBy(exactText("c")).hover()
-                .find(".destroy").click();
-        $$("#todo-list>li").shouldHave(exactTexts("b"));
+    private void delete(String task) {
+        getTaskList().findBy(exactText(task)).hover().find(".destroy").click();
+    }
+
+    private ElementsCollection getTaskList() {
+        return $$("#todo-list>li");
     }
 }
