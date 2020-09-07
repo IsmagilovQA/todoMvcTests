@@ -1,6 +1,7 @@
 package com.taotas.todomvctests;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -18,18 +19,18 @@ public class UserWorkflowsTests {
                 .jsReturnsValue("return $._data($('#new-todo').get(0), 'events').hasOwnProperty('keyup')"));
 
         add("a", "b", "c");
-        getTaskList().shouldHave(exactTexts("a", "b", "c"));
+        shouldBeTasks("a", "b", "c");
 
-        edit("a", " edited");
+        editMode("a", " edited").pressEnter();
         complete("a edited");
 
         clearCompleted();
-        getTaskList().shouldHave(exactTexts("b", "c"));
+        shouldBeTasks("b", "c");
 
-        cancelEditing("c", " cancel editing");
+        editMode("c", "cancel editing").pressEscape();
 
         delete("c");
-        getTaskList().shouldHave(exactTexts("b"));
+        shouldBeTasks("b");
     }
 
 
@@ -39,29 +40,32 @@ public class UserWorkflowsTests {
         }
     }
 
-    private void edit(String task, String text) {
-        getTaskList().findBy(exactText(task)).doubleClick();
-        getTaskList().find(cssClass("editing")).find(".edit").append(text).pressEnter();
+    private SelenideElement editMode(String task, String text) {
+        searchByText(task).doubleClick();
+        return getTaskList().find(cssClass("editing")).find(".edit").append(text);
     }
 
     private void complete(String task) {
-        getTaskList().findBy(exactText(task)).find(".toggle").click();
+        searchByText(task).find(".toggle").click();
     }
 
     private void clearCompleted() {
         $("#clear-completed").click();
     }
 
-    private void cancelEditing(String task, String text) {
-        getTaskList().findBy(exactText(task)).doubleClick();
-        getTaskList().find(cssClass("editing")).find(".edit").append(text).pressEscape();
-    }
-
     private void delete(String task) {
-        getTaskList().findBy(exactText(task)).hover().find(".destroy").click();
+        searchByText(task).hover().find(".destroy").click();
     }
 
     private ElementsCollection getTaskList() {
         return $$("#todo-list>li");
+    }
+
+    private void shouldBeTasks(String... texts) {
+        getTaskList().shouldHave(exactTexts(texts));
+    }
+
+    private SelenideElement searchByText(String task) {
+        return getTaskList().findBy(exactText(task));
     }
 }
