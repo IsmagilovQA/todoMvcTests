@@ -19,53 +19,41 @@ public class UserWorkflowsTests {
                 .jsReturnsValue("return $._data($('#new-todo').get(0), 'events').hasOwnProperty('keyup')"));
 
         add("a", "b", "c");
-        shouldBeTasks("a", "b", "c");
+        todosShouldBe("a", "b", "c");
 
-        editMode("a", " edited").pressEnter();
-        complete("a edited");
+        startEdit("a", " edited").pressEnter();
+        todo("a edited").find(".toggle").click();
 
-        clearCompleted();
-        shouldBeTasks("b", "c");
+        $("#clear-completed").click();
+        todosShouldBe("b", "c");
 
-        editMode("c", "cancel editing").pressEscape();
+        startEdit("c", "cancel editing").pressEscape();
 
-        delete("c");
-        shouldBeTasks("b");
+        todo("c").hover().find(".destroy").click();
+        todosShouldBe("b");
     }
 
 
-    private void add(String... taskTexts) {
-        for (String text : taskTexts) {
+    private void add(String... texts) {
+        for (String text : texts) {
             $("#new-todo").append(text).pressEnter();
         }
     }
 
-    private SelenideElement editMode(String task, String text) {
-        searchByText(task).doubleClick();
-        return getTaskList().find(cssClass("editing")).find(".edit").append(text);
+    private SelenideElement startEdit(String text, String appendText) {
+        todo(text).doubleClick();
+        return todos().find(cssClass("editing")).find(".edit").append(appendText);
     }
 
-    private void complete(String task) {
-        searchByText(task).find(".toggle").click();
-    }
-
-    private void clearCompleted() {
-        $("#clear-completed").click();
-    }
-
-    private void delete(String task) {
-        searchByText(task).hover().find(".destroy").click();
-    }
-
-    private ElementsCollection getTaskList() {
+    private ElementsCollection todos() {
         return $$("#todo-list>li");
     }
 
-    private void shouldBeTasks(String... texts) {
-        getTaskList().shouldHave(exactTexts(texts));
+    private void todosShouldBe(String... texts) {
+        todos().shouldHave(exactTexts(texts));
     }
 
-    private SelenideElement searchByText(String task) {
-        return getTaskList().findBy(exactText(task));
+    private SelenideElement todo(String text) {
+        return todos().findBy(exactText(text));
     }
 }
