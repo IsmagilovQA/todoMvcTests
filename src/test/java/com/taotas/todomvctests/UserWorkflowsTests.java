@@ -13,6 +13,8 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowsTests {
 
+    private ElementsCollection todoList = $$("#todo-list>li");
+
     @Test
     public void commonTasksManagement() {
         open("http://todomvc4tasj.herokuapp.com/");
@@ -20,25 +22,19 @@ public class UserWorkflowsTests {
                 "return $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click')"));
 
-        // Create
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        // Edit
-        startEdit("a", " edited").pressEnter();
+        edit("a", " edited");
 
-        // Complete
-        todo("a edited").find(".toggle").click();
+        complete("a edited");
 
-        // Clear Completed
-        $("#clear-completed").click();
+        clearCompleted();
         todosShouldBe("b", "c");
 
-        // Cancel editing
-        startEdit("c", "cancel editing").pressEscape();
+        cancelEditing("c", "cancel editing");
 
-        // Delete
-        todo("c").hover().find(".destroy").click();
+        delete("c");
         todosShouldBe("b");
     }
 
@@ -49,24 +45,35 @@ public class UserWorkflowsTests {
         }
     }
 
-    private SelenideElement startEdit(String text, String textToAdd) {
-        todo(text).doubleClick();
-        return todoBy(cssClass("editing")).find(".edit").append(textToAdd);
+    private void edit(String text, String textToEdit) {
+        todoBy(exactText(text)).doubleClick();
+        todoBy(cssClass("editing")).find(".edit").append(textToEdit)
+                .pressEnter();
     }
 
-    private ElementsCollection todos() {
-        return $$("#todo-list>li");
+    private void complete(String text) {
+        todoBy(exactText(text)).find(".toggle").click();
+    }
+
+    private void clearCompleted() {
+        $("#clear-completed").click();
+    }
+
+    private void cancelEditing(String text, String textToCancel) {
+        todoBy(exactText(text)).doubleClick();
+        todoBy(cssClass("editing")).find(".edit").append(textToCancel)
+                .pressEscape();
+    }
+
+    private void delete(String text) {
+        todoBy(exactText(text)).hover().find(".destroy").click();
     }
 
     private void todosShouldBe(String... texts) {
-        todos().shouldHave(exactTexts(texts));
-    }
-
-    private SelenideElement todo(String text) {
-        return todoBy(exactText(text));
+        this.todoList.shouldHave(exactTexts(texts));
     }
 
     private SelenideElement todoBy(Condition condition) {
-        return todos().findBy(condition);
+        return this.todoList.findBy(condition);
     }
 }
