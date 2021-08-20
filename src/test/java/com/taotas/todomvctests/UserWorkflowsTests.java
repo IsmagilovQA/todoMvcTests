@@ -51,13 +51,13 @@ public class UserWorkflowsTests {
     }
 
     private void edit(String textToEdit, String newText) {
-        todoBy(exactText(textToEdit)).doubleClick();
+        todo(textToEdit).doubleClick();
         todoBy(cssClass("editing")).find(".edit").setValue(newText)
                 .pressEnter();
     }
 
     private void toggle(String text) {
-        todoBy(exactText(text)).find(".toggle").click();
+        todo(text).find(".toggle").click();
     }
 
     private void clearCompleted() {
@@ -65,13 +65,13 @@ public class UserWorkflowsTests {
     }
 
     private void cancelEditing(String textToEdit, String textToCancel) {
-        todoBy(exactText(textToEdit)).doubleClick();
+        todo(textToEdit).doubleClick();
         todoBy(cssClass("editing")).find(".edit").setValue(textToCancel)
                 .pressEscape();
     }
 
     private void delete(String text) {
-        todoBy(exactText(text)).hover().find(".destroy").click();
+        todo(text).hover().find(".destroy").click();
     }
 
     private void todosShouldBe(String... texts) {
@@ -80,5 +80,9 @@ public class UserWorkflowsTests {
 
     private SelenideElement todoBy(Condition condition) {
         return this.todos.findBy(condition);
+    }
+
+    private SelenideElement todo(String text) {
+        return todoBy(exactText(text));
     }
 }
