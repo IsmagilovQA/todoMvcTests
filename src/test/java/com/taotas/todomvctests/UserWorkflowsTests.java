@@ -1,6 +1,9 @@
 package com.taotas.todomvctests;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -38,8 +41,7 @@ public class UserWorkflowsTests {
 
     private void openApp() {
         Selenide.open("http://todomvc4tasj.herokuapp.com/");
-        Wait().until(jsReturnsValue(
-                "return $._data($('#clear-completed').get(0), 'events')" +
+        Wait().until(jsReturnsValue("return $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click')"));
     }
 
@@ -50,39 +52,44 @@ public class UserWorkflowsTests {
         }
     }
 
+
     private void edit(String textToEdit, String newText) {
-        todo(textToEdit).doubleClick();
-        todoBy(cssClass("editing")).find(".edit").setValue(newText)
-                .pressEnter();
+        startEditing(textToEdit, newText).pressEnter();
     }
+
+
+    private SelenideElement startEditing(String textToEdit, String newText) {
+        todo(textToEdit).doubleClick();
+        return this.todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
+    }
+
+
+    private void cancelEditing(String textToEdit, String textToCancel) {
+        startEditing(textToEdit, textToCancel).pressEscape();
+    }
+
 
     private void toggle(String text) {
         todo(text).find(".toggle").click();
     }
 
+
     private void clearCompleted() {
         $("#clear-completed").click();
     }
 
-    private void cancelEditing(String textToEdit, String textToCancel) {
-        todo(textToEdit).doubleClick();
-        todoBy(cssClass("editing")).find(".edit").setValue(textToCancel)
-                .pressEscape();
-    }
 
     private void delete(String text) {
         todo(text).hover().find(".destroy").click();
     }
 
+
     private void todosShouldBe(String... texts) {
         this.todos.shouldHave(exactTexts(texts));
     }
 
-    private SelenideElement todoBy(Condition condition) {
-        return this.todos.findBy(condition);
-    }
 
     private SelenideElement todo(String text) {
-        return todoBy(exactText(text));
+        return this.todos.findBy(exactText(text));
     }
 }
