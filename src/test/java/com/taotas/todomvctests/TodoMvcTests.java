@@ -1,9 +1,9 @@
 package com.taotas.todomvctests;
 
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.taotas.todomvctests.configs.BaseTest;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -12,14 +12,12 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class UserWorkflowsTests {
+public class TodoMvcTests extends BaseTest {
 
     private ElementsCollection todos = $$("#todo-list>li");
 
     @Test
     public void commonTasksManagement() {
-        Configuration.fastSetValue = true;
-
         openApp();
 
         add("a", "b", "c");
@@ -40,7 +38,7 @@ public class UserWorkflowsTests {
 
 
     private void openApp() {
-        Selenide.open("http://todomvc4tasj.herokuapp.com/");
+        Selenide.open("/");
         Wait().until(jsReturnsValue("return $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click')"));
     }
