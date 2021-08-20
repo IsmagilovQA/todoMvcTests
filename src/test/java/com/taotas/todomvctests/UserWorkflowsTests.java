@@ -1,8 +1,6 @@
 package com.taotas.todomvctests;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -13,21 +11,20 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowsTests {
 
-    private ElementsCollection todoList = $$("#todo-list>li");
+    private ElementsCollection todos = $$("#todo-list>li");
 
     @Test
     public void commonTasksManagement() {
-        open("http://todomvc4tasj.herokuapp.com/");
-        Wait().until(jsReturnsValue(
-                "return $._data($('#clear-completed').get(0), 'events')" +
-                        ".hasOwnProperty('click')"));
+        Configuration.fastSetValue = true;
+
+        openApp();
 
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        edit("a", " edited");
+        edit("a", "a edited");
 
-        complete("a edited");
+        toggle("a edited");
 
         clearCompleted();
         todosShouldBe("b", "c");
@@ -39,19 +36,27 @@ public class UserWorkflowsTests {
     }
 
 
+    private void openApp() {
+        Selenide.open("http://todomvc4tasj.herokuapp.com/");
+        Wait().until(jsReturnsValue(
+                "return $._data($('#clear-completed').get(0), 'events')" +
+                        ".hasOwnProperty('click')"));
+    }
+
+
     private void add(String... texts) {
         for (String text : texts) {
             $("#new-todo").append(text).pressEnter();
         }
     }
 
-    private void edit(String text, String textToEdit) {
-        todoBy(exactText(text)).doubleClick();
-        todoBy(cssClass("editing")).find(".edit").append(textToEdit)
+    private void edit(String textToEdit, String newText) {
+        todoBy(exactText(textToEdit)).doubleClick();
+        todoBy(cssClass("editing")).find(".edit").setValue(newText)
                 .pressEnter();
     }
 
-    private void complete(String text) {
+    private void toggle(String text) {
         todoBy(exactText(text)).find(".toggle").click();
     }
 
@@ -59,9 +64,9 @@ public class UserWorkflowsTests {
         $("#clear-completed").click();
     }
 
-    private void cancelEditing(String text, String textToCancel) {
-        todoBy(exactText(text)).doubleClick();
-        todoBy(cssClass("editing")).find(".edit").append(textToCancel)
+    private void cancelEditing(String textToEdit, String textToCancel) {
+        todoBy(exactText(textToEdit)).doubleClick();
+        todoBy(cssClass("editing")).find(".edit").setValue(textToCancel)
                 .pressEscape();
     }
 
@@ -70,10 +75,10 @@ public class UserWorkflowsTests {
     }
 
     private void todosShouldBe(String... texts) {
-        this.todoList.shouldHave(exactTexts(texts));
+        this.todos.shouldHave(exactTexts(texts));
     }
 
     private SelenideElement todoBy(Condition condition) {
-        return this.todoList.findBy(condition);
+        return this.todos.findBy(condition);
     }
 }
