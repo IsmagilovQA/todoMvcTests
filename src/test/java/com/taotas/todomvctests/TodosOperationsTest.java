@@ -1,24 +1,23 @@
 package com.taotas.todomvctests;
 
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import com.taotas.todomvctests.configs.BaseTest;
+import com.taotas.todomvctests.configs.AtTodoMvcWithClearedStorageAfterEachTest;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Selenide.*;
-import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
-public class TodoMvcTests extends BaseTest {
+public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTest {
 
     private ElementsCollection todos = $$("#todo-list>li");
 
+
     @Test
     public void commonTasksManagement() {
-        openApp();
 
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
@@ -26,7 +25,6 @@ public class TodoMvcTests extends BaseTest {
         edit("a", "a edited");
 
         toggle("a edited");
-
         clearCompleted();
         todosShouldBe("b", "c");
 
@@ -37,11 +35,16 @@ public class TodoMvcTests extends BaseTest {
     }
 
 
-    private void openApp() {
-        Selenide.open("/");
-        Wait().until(jsReturnsValue("return $._data($('#clear-completed').get(0), 'events')" +
-                        ".hasOwnProperty('click')"));
+    @Test
+    public void filtering() {
+
+        add("a", "b", "c");
+        todosShouldBe("a", "b", "c");
+
+        toggle("b");
+        todosShouldbeActive("a", "c");
     }
+
 
 
     private void add(String... texts) {
@@ -89,5 +92,12 @@ public class TodoMvcTests extends BaseTest {
 
     private SelenideElement todo(String text) {
         return this.todos.findBy(exactText(text));
+    }
+
+
+    // todo: step methods implementation
+
+    private void todosShouldbeActive(String... texts) {
+        this.todos.filterBy(cssClass("active")).shouldHave(exactTexts(texts));
     }
 }
