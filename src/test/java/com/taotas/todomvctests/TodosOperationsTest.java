@@ -4,6 +4,7 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.taotas.todomvctests.configs.AtTodoMvcWithClearedStorageAfterEachTest;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.cssClass;
@@ -42,7 +43,16 @@ public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTes
         todosShouldBe("a", "b", "c");
 
         toggle("b");
-        todosShouldbeActive("a", "c");
+
+        sortByAll();
+        todosShouldBeActive("a", "c");
+        todosShouldBe("a", "b", "c");
+
+        sortByActive();
+        todosShouldBe("a", "", "c");
+
+        sortByCompleted();
+        todosShouldBe("", "b", "");
     }
 
 
@@ -95,9 +105,19 @@ public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTes
     }
 
 
-    // todo: step methods implementation
-
-    private void todosShouldbeActive(String... texts) {
+    private void todosShouldBeActive(String... texts) {
         this.todos.filterBy(cssClass("active")).shouldHave(exactTexts(texts));
+    }
+
+    private void sortByAll() {
+        $(By.linkText("All")).click();
+    }
+
+    private void sortByActive() {
+        $(By.linkText("Active")).click();
+    }
+
+    private void sortByCompleted() {
+        $(By.linkText("Completed")).click();
     }
 }
