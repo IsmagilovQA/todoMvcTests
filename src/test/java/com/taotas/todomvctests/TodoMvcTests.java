@@ -4,22 +4,18 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.taotas.todomvctests.configs.AtTodoMvcWithClearedStorageAfterEachTest;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
-import static com.codeborne.selenide.Condition.cssClass;
-import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTest {
+public class TodoMvcTests extends AtTodoMvcWithClearedStorageAfterEachTest {
 
     private ElementsCollection todos = $$("#todo-list>li");
 
-
     @Test
-    public void commonTasksManagement() {
-
+    public void basicTodosActions() {
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
@@ -37,24 +33,19 @@ public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTes
 
 
     @Test
-    public void filtering() {
-
+    public void filterTodos() {
         add("a", "b", "c");
-        todosShouldBe("a", "b", "c");
-
         toggle("b");
 
-        sortByAll();
-        todosShouldBeActive("a", "c");
+        filterActive();
+        todosShouldBe("a", "c");
+
+        filterCompleted();
+        todosShouldBe("b");
+
+        filterAll();
         todosShouldBe("a", "b", "c");
-
-        sortByActive();
-        todosShouldBe("a", "", "c");
-
-        sortByCompleted();
-        todosShouldBe("", "b", "");
     }
-
 
 
     private void add(String... texts) {
@@ -63,61 +54,48 @@ public class TodosOperationsTest extends AtTodoMvcWithClearedStorageAfterEachTes
         }
     }
 
-
     private void edit(String textToEdit, String newText) {
         startEditing(textToEdit, newText).pressEnter();
     }
-
 
     private SelenideElement startEditing(String textToEdit, String newText) {
         todo(textToEdit).doubleClick();
         return this.todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
     }
 
-
     private void cancelEditing(String textToEdit, String textToCancel) {
         startEditing(textToEdit, textToCancel).pressEscape();
     }
-
 
     private void toggle(String text) {
         todo(text).find(".toggle").click();
     }
 
-
     private void clearCompleted() {
         $("#clear-completed").click();
     }
-
 
     private void delete(String text) {
         todo(text).hover().find(".destroy").click();
     }
 
-
     private void todosShouldBe(String... texts) {
-        this.todos.shouldHave(exactTexts(texts));
+        this.todos.filterBy(visible).shouldHave(exactTexts(texts));
     }
-
 
     private SelenideElement todo(String text) {
         return this.todos.findBy(exactText(text));
     }
 
-
-    private void todosShouldBeActive(String... texts) {
-        this.todos.filterBy(cssClass("active")).shouldHave(exactTexts(texts));
+    private void filterAll() {
+        $("[href='#/']").click();
     }
 
-    private void sortByAll() {
-        $(By.linkText("All")).click();
+    private void filterActive() {
+        $("[href='#/active']").click();
     }
 
-    private void sortByActive() {
-        $(By.linkText("Active")).click();
-    }
-
-    private void sortByCompleted() {
-        $(By.linkText("Completed")).click();
+    private void filterCompleted() {
+        $("[href='#/completed']").click();
     }
 }
