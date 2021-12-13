@@ -1,21 +1,25 @@
 package com.taotas.todomvctests;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import com.taotas.todomvctests.configs.AtTodoMvcWithClearedStorageAfterEachTest;
+import com.codeborne.selenide.WebDriverRunner;
+import com.taotas.todomvctests.configs.BaseTest;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
+import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class TodoMvcTests extends AtTodoMvcWithClearedStorageAfterEachTest {
+public class TodoMvcTests extends BaseTest {
 
     private ElementsCollection todos = $$("#todo-list>li");
 
     @Test
     public void basicTodosActions() {
+        givenAppOpened();
+
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
@@ -34,7 +38,7 @@ public class TodoMvcTests extends AtTodoMvcWithClearedStorageAfterEachTest {
 
     @Test
     public void filterTodos() {
-        add("a", "b", "c");
+        givenAppOpenedWith("a", "b", "c");
         toggle("b");
 
         filterActive();
@@ -47,6 +51,25 @@ public class TodoMvcTests extends AtTodoMvcWithClearedStorageAfterEachTest {
         todosShouldBe("a", "b", "c");
     }
 
+
+    public void givenAppOpenedWith(String... todos) {
+        givenAppOpened();
+        add(todos);
+    }
+
+
+    public void givenAppOpened() {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Selenide.clearBrowserLocalStorage();
+        }
+        openApp();
+    }
+
+    public void openApp() {
+        open("/");
+        Wait().until(jsReturnsValue("return $._data($('#clear-completed').get(0), 'events')" +
+                ".hasOwnProperty('click')"));
+    }
 
     private void add(String... texts) {
         for (String text : texts) {

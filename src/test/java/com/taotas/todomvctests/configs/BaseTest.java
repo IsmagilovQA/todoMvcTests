@@ -5,10 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class BaseTest {
 
-       // Executed only once before class with tests
-    static {
-            Configuration.baseUrl = System.getProperty("selenide.baseUrl", "http://todomvc4tasj.herokuapp.com");
-            Configuration.browser = "chrome";
-            Configuration.fastSetValue = true;
-        }
+    {
+        Configuration.baseUrl = System.getProperty("selenide.baseUrl", "http://todomvc4tasj.herokuapp.com");
+        Configuration.browser = "chrome";
+        Configuration.fastSetValue = true;
+    }
 }
